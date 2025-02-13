@@ -10,13 +10,13 @@ const Navbar = () => (
   <Section>
     <NavbarTwoColumns>
       <a href="/">
-        <Logo
-          name="ADHD Types"
-        />
+        <Logo name="ADHD Types" />
       </a>
 
       <NavMenu>
-        <NavMenuItem href="https://github.com/mdzhang/amen-adhd-quiz">GitHub</NavMenuItem>
+        <NavMenuItem href="https://github.com/mdzhang/amen-adhd-quiz">
+          GitHub
+        </NavMenuItem>
       </NavMenu>
     </NavbarTwoColumns>
   </Section>
