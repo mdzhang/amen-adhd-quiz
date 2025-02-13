@@ -6,9 +6,9 @@ import robotsTxt from 'astro-robots-txt';
 
 // https://astro.build/config
 export default defineConfig({
-  base: '/amen-adhd-quiz', // Set a path prefix.
-  site: 'https://example.com/', // Use to generate your sitemap and canonical URLs in your final build.
-  trailingSlash: 'always', // Use to always append '/' at end of url
+  base: '/amen-adhd-quiz',
+  site: 'https://mdzhang.github.io/amen-adhd-quiz/',
+  trailingSlash: 'always',
   markdown: {
     shikiConfig: {
       // Choose from Shiki's built-in themes (or add your own)
