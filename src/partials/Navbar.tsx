@@ -16,7 +16,7 @@ const Navbar = () => (
       </a>
 
       <NavMenu>
-        <NavMenuItem href="https://github.com/mdzhang/amen-add-quiz">GitHub</NavMenuItem>
+        <NavMenuItem href="https://github.com/mdzhang/amen-adhd-quiz">GitHub</NavMenuItem>
       </NavMenu>
     </NavbarTwoColumns>
   </Section>
