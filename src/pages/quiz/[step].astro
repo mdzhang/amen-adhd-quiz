@@ -1,0 +1,19 @@
+---
+import Base from '@/layouts/Base.astro';
+import { AppConfig } from '@/utils/AppConfig';
+import Quiz from '@/components/Quiz.astro';
+import { questions } from '@/utils/quiz';
+
+const { step } = Astro.params;
+
+const { title } = AppConfig;
+const { description } = AppConfig;
+
+export function getStaticPaths() {
+  return Array.from(Array(questions.length + 2).keys()).map(idx => ({ params: { step: idx }}));
+}
+---
+
+<Base head={{ title, description }}>
+  <Quiz step={step}/>
+</Base>

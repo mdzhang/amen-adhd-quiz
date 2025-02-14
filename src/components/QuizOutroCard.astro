@@ -1,0 +1,144 @@
+---
+import Spinner from '@/components/Spinner.astro';
+---
+<div class="max-w-4xl p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+    <a href="#">
+        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+          Quiz completed!
+        </h5>
+        <scored-results>
+          <p class="mb-3 font-normal text-gray-700 dark:text-gray-400" id="result-overview-message">
+            Hold tight while your answers are processed...
+          </p>
+          <div id="loading-spinner">
+            <Spinner />
+          </div>
+          <div id="results-container">
+          </div>
+        </scored-results>
+    </a>
+</div>
+
+<script>
+  import { questions, scoreAnswers, humanize} from '@/utils/quiz';
+
+  class AddTypeAlert extends HTMLElement {
+    connectedCallback() {
+      const type = this.getAttribute('type') || 'unknown';
+      const number = this.getAttribute('number') || 'unknown';
+      const explanation = this.getAttribute('explanation') || ''
+
+      this.innerHTML = `
+        <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 cursor-default" role="alert">
+          <span class="font-medium">Type ${number} ${humanize(type)}:</span>
+          <br/>
+          ${' ' + explanation}
+        </div>
+      `;
+    }
+  }
+
+  customElements.define('add-type-alert', AddTypeAlert);
+
+  class DownloadCsv extends HTMLElement {
+    connectedCallback() {
+      const answersJson = this.getAttribute('answers') || '{}';
+      const answers = JSON.parse(answersJson);
+
+      this.innerHTML = `
+      <div class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer">
+        Download
+      </div>
+      `;
+
+      const el = this.querySelector('div');
+
+      if (el) {
+        el.addEventListener('click', () => {
+          const escapeCSVValue = (value: string) => {
+            if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+              return `"${value.replace(/"/g, '""')}"`; // Escape double quotes
+            }
+            return value;
+          };
+
+          const csvContent = [
+          'question,no,category,score',
+          ...Object.keys(answers).map((no) => {
+            const question = questions[no];
+
+            const row = {
+              question: escapeCSVValue(question.text),
+              no: Number(no) + 1,
+              category: question.category,
+              score: answers[no],
+            }
+
+            return Object.values(row).join(',');
+          })
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'add_answers.csv';
+        document.body.appendChild(a);
+        a.click();
+        });
+      }
+    }
+  }
+
+  customElements.define('download-csv', DownloadCsv);
+
+  class ScoredResults extends HTMLElement {
+    connectedCallback() {
+      const params = new URLSearchParams(window.location.search);
+      const answers = params.get('answers') || '';
+      console.log(`Raw answers ${answers}`)
+
+      const answerDict = Object.fromEntries(answers.split(',').filter(i => i !== '').map(i => i.split('=')));
+      const results = scoreAnswers(answerDict)
+      console.log(`Results ${JSON.stringify(results)}`)
+
+      // add alerts for each ADD type qualified for based on answers
+      const container = document.getElementById('results-container');
+      container.innerHTML = ''; // Clear previous results if any
+
+      Object.keys(results).forEach(category => {
+        const result = results[category]
+        if (result.qualifies) {
+          const alert = document.createElement('add-type-alert');
+          alert.setAttribute('type', category);
+          alert.setAttribute('number', result.categoryNumber);
+          alert.setAttribute('explanation', result.explanation);
+          container.appendChild(alert);
+        }
+      });
+
+      const qualifyingCount = Object.values(results).filter(r => r.qualifies).length;
+
+      // remove the spinner
+      const spinner = document.getElementById('loading-spinner');
+      spinner.classList.add('hidden');
+
+      // update the summary
+      const summary = document.getElementById('result-overview-message');
+
+      if (qualifyingCount === 0) {
+        summary.textContent = "You didn't meet the criteria for any ADD types."
+      } else {
+        summary.textContent = `You met the criteria for ${qualifyingCount} ADD type(s).`
+      }
+
+      // add a result download button
+      const button = document.createElement('download-csv');
+      button.setAttribute('answers', JSON.stringify(answerDict));
+      container.appendChild(button);
+    }
+  }
+
+  customElements.define('scored-results', ScoredResults);
+</script>

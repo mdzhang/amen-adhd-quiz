@@ -1,0 +1,21 @@
+---
+import { questions } from '@/utils/quiz';
+
+import QuizIntroCard from '@/components/QuizIntroCard.astro';
+import QuizOutroCard from '@/components/QuizOutroCard.astro';
+import QuizQuestionCard from '@/components/QuizQuestionCard.astro';
+
+export interface Props {
+  step: number;
+}
+const { step } = Astro.props as Props;
+
+const index = step - 1;
+const question = index >= 0 ? questions[index] : null;
+
+const isIntro = index < 0;
+const isOutro = step > questions.length;
+---
+<div class="flex flex-wrap items-center justify-between mx-auto my-auto p-32">
+  {isIntro ? <QuizIntroCard /> : (isOutro ? <QuizOutroCard /> : <QuizQuestionCard index={index} question={question?.text || ''} />)}
+</div>

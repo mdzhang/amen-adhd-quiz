@@ -1,0 +1,107 @@
+---
+import { AppConfig } from "@/utils/AppConfig";
+import QuizQuestionRating from '@/components/QuizQuestionRating.astro';
+import { options } from '@/utils/quiz';
+
+export interface Props {
+  index: number;
+  question: string;
+}
+
+const { question, index } = Astro.props as Props;
+
+const showBack = index > 0;
+
+const radioElementName = `question-radio-${index}`
+---
+<div class="max-w-4xl p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+    <a href="#">
+        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+          Question #{index+1}
+        </h5>
+    </a>
+    <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
+      Please rate how much the following symptom applies to you:
+    </p>
+    <p class="mb-3 font-bold text-gray-700 dark:text-gray-400 p-4 text-center border border-blue-200 rounded-lg bg-blue-200/25">
+      {question}
+    </p>
+    <div class="pb-8">
+      <QuizQuestionRating elementName={radioElementName}/>
+    </div>
+    {showBack && (
+      <back-button data-lastpage={`${AppConfig.base}/quiz/${index}/`}>
+        <div class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+          Back
+        </div>
+      </back-button>
+    )}
+    <next-question data-nextpage={`${AppConfig.base}/quiz/${index+2}/`} data-index={index} data-radioelementname={radioElementName} data-options={JSON.stringify(options)}>
+      <div class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer">
+        Next
+      </div>
+    </next-question>
+</div>
+<script>
+  class NextQuestion extends HTMLElement {
+    connectedCallback() {
+      const index = Number(this.dataset.index) || 0;
+      const radioElementName = this.dataset.radioelementname || 'unknown';
+      const nextPage = this.dataset.nextpage || window.location.href;
+      const options = JSON.parse(this.dataset.options || '{}');
+
+      console.log(`Connected el to index ${index} and ${radioElementName} and ${nextPage}`)
+
+      const el = this.querySelector('div');
+      if (el) {
+        el.addEventListener('click', () => {
+          this.answer(index, radioElementName, nextPage, options);
+        });
+      }
+    }
+
+    answer(index: number, radioElementName: string, nextPage: string, options: string) {
+      const selector = `input[name="${radioElementName}"]:checked`;
+      const checkedInput = document.querySelector(selector)
+      const rating = checkedInput ? checkedInput.value : null;
+
+      if (rating === null) {
+        console.log(`Nothing selected for question ${index}`)
+        return;
+      }
+
+      const ratingNumber = options[rating]
+
+      console.log(`Selected rating '${rating}/${ratingNumber}' for question ${index}`)
+
+      const params = new URLSearchParams(window.location.search);
+      const answers = params.get('answers') || '';
+      params.set('answers', `${answers},${index}=${ratingNumber}`)
+
+      const url = new URL(window.location.origin + nextPage);
+      url.search = params.toString();
+
+      window.location.href = url.toString();
+    }
+  }
+
+  class BackButton extends HTMLElement {
+    connectedCallback() {
+      const lastPage = this.dataset.lastpage || window.location.href;
+
+      const el = this.querySelector('div');
+      if (el) {
+        el.addEventListener('click', () => {
+          const params = new URLSearchParams(window.location.search);
+          const url = new URL(window.location.origin + lastPage);
+          url.search = params.toString();
+          window.location.href = url.toString();
+        });
+      }
+    }
+  }
+
+  customElements.define('next-question', NextQuestion);
+  customElements.define('back-button', BackButton);
+</script>
+

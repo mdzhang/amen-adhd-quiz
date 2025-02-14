@@ -1,0 +1,13 @@
+---
+import HorizontalRadio from '@/components/HorizontalRadio.astro';
+import { options } from '@/utils/quiz';
+
+export interface Props {
+  elementName: string;
+}
+
+const { elementName } = Astro.props as Props;
+
+---
+
+<HorizontalRadio options={Object.keys(options)} elementName={elementName} />

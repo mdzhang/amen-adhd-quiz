@@ -1,7 +1,6 @@
 ---
-import { Hero } from '@/partials/Hero';
-import { Quiz } from '@/partials/Quiz';
-import Base from '@/templates/Base.astro';
+import Hero from '@/components/Hero.astro';
+import Base from '@/layouts/Base.astro';
 import { AppConfig } from '@/utils/AppConfig';
 
 const { title } = AppConfig;
@@ -9,6 +8,7 @@ const { description } = AppConfig;
 ---
 
 <Base head={{ title, description }}>
-  <Hero />
-  <Quiz />
+  <div class='m-auto flex flex-wrap items-center justify-between p-16'>
+    <Hero />
+  </div>
 </Base>
