@@ -16,6 +16,6 @@ const question = index >= 0 ? questions[index] : null;
 const isIntro = index < 0;
 const isOutro = step > questions.length;
 ---
-<div class="flex flex-wrap items-center justify-between mx-auto my-auto p-32">
+<div class="m-auto flex flex-wrap items-center justify-between p-32">
   {isIntro ? <QuizIntroCard /> : (isOutro ? <QuizOutroCard /> : <QuizQuestionCard index={index} question={question?.text || ''} />)}
 </div>

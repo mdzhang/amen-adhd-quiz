@@ -10,7 +10,7 @@ const { title } = AppConfig;
 const { description } = AppConfig;
 
 export function getStaticPaths() {
-  return Array.from(Array(questions.length + 2).keys()).map(idx => ({ params: { step: idx }}));
+  return Array.from(Array(questions.length + 2).keys()).map((idx) => ({ params: { step: idx } }));
 }
 ---
 
