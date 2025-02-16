@@ -1,39 +1,47 @@
 /* eslint-disable no-restricted-syntax */
 import questionData from '@/data/questions.json';
 
-const CATEGORIES = [
-  'inattentive',
-  'hyperactivity', // aka impulsivity
-  'overfocused',
-  'temporal',
-  'limbic',
-  'ring_of_fire',
-  'anxious',
-] as const;
-
-const CATEGORY_NUMS = {
-  inattentive: 1,
-  hyperactivity: 2,
-  overfocused: 3,
-  temporal: 4,
-  limbic: 5,
-  ring_of_fire: 6,
-  anxious: 7,
+type QuestionCategory = {
+  number: number;
+  range: number[];
 };
 
-const CATEGORY_QUESTION_RANGES = {
-  inattentive: [1, 9],
-  hyperactivity: [10, 18],
-  overfocused: [19, 31],
-  temporal: [32, 44],
-  limbic: [45, 53],
-  ring_of_fire: [54, 63],
-  anxious: [64, 70],
-};
+const CATEGORIES: Record<string, QuestionCategory> = {
+  inattentive: {
+    number: 1,
+    range: [1, 9],
+  },
+  hyperactivity: {
+    // aka impulsivity
+    number: 2,
+    range: [10, 18],
+  },
+  overfocused: {
+    number: 3,
+    range: [19, 31],
+  },
+  temporal: {
+    number: 4,
+    range: [32, 44],
+  },
+  limbic: {
+    number: 5,
+    range: [45, 53],
+  },
+  ring_of_fire: {
+    number: 6,
+    range: [54, 63],
+  },
+  anxious: {
+    number: 7,
+    range: [64, 70],
+  },
+} as const;
 
 type Answers = Record<number, number>;
 
-type Category = (typeof CATEGORIES)[number];
+type Category = keyof typeof CATEGORIES;
+
 type CategoryResult = {
   score: number;
   isInattentive: boolean;
@@ -109,7 +117,7 @@ function getExplanation(
   score,
   nearly = false
 ) {
-  const range = CATEGORY_QUESTION_RANGES[category];
+  const { range } = CATEGORIES[category];
   const rangeMsg = `(questions ${range[0]}-${range[1]})`;
 
   const basicallyQualified = qualifies || nearly;
@@ -135,7 +143,7 @@ function getExplanation(
     return msg;
   }
 
-  const iaRange = CATEGORY_QUESTION_RANGES.inattentive;
+  const iaRange = CATEGORIES.inattentive.range;
   const iaRangeMsg = `(questions ${iaRange[0]}-${iaRange[1]})`;
   const tot = iaRange[1] - iaRange[0];
 
@@ -159,13 +167,11 @@ function getExplanation(
  * @returns
  */
 export function scoreAnswers(answers: Answers): Result {
-  console.log('answers', answers);
-
   const isInattentive = determineIsCoreType(answers, 'inattentive');
   const isImpulsive = determineIsCoreType(answers, 'hyperactivity');
   const perCategory: Result = {};
 
-  for (const category of CATEGORIES) {
+  for (const category of Object.keys(CATEGORIES)) {
     const categoryQs = questions.filter((q) => q.category === category);
 
     const score = categoryQs.reduce((acc, q) => {
@@ -195,7 +201,7 @@ export function scoreAnswers(answers: Answers): Result {
       qualifies,
       nearlyQualified: qualifies ? false : nearlyQualified,
       category,
-      categoryNumber: CATEGORY_NUMS[category],
+      categoryNumber: CATEGORIES[category].number,
       explanation: getExplanation(
         category,
         qualifies,
