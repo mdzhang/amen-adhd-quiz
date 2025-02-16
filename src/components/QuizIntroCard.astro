@@ -1,5 +1,8 @@
 ---
 import { AppConfig } from '@/utils/AppConfig';
+import { optionDescriptions } from '@/utils/quiz';
+
+const pStyle = "mb-3 font-normal text-gray-700 dark:text-gray-400"
 ---
 
 <div class="max-w-4xl rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
@@ -8,12 +11,20 @@ import { AppConfig } from '@/utils/AppConfig';
           Get Started
         </h5>
     </a>
-    <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
-      These <b>70</b> questions ask about your lifestyle, health and how you feel.
+    <p class={pStyle}>
+      These <b class="dark:text-white">70</b> questions ask about your lifestyle, health and how you feel.
       There are no right or wrong answers.
       Please rate how much each statement applies to you. Focus on the most recent weeks.
     </p>
-    <p class="mb-3 pb-8 font-normal text-gray-700 dark:text-gray-400">
+    <p class={pStyle}>
+      Here are the potential ratings you'll be able to choose from, and how to think about them
+    </p>
+    <ul class={`pl-2 pb-4 ${pStyle}`}>
+      {Object.keys(optionDescriptions).map((option) => (
+        <li><b class="dark:text-white">{option}</b>: {optionDescriptions[option]}</li>
+      ))}
+    </ul>
+    <p class={`pb-8 ${pStyle}`}>
       If possible, to give yourself the most complete picture, have another person who knows you well
       (such as a partner, close friend, or family member) rate you as well.
     </p>

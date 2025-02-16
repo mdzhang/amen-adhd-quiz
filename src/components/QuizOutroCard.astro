@@ -18,6 +18,8 @@ import Spinner from '@/components/Spinner.astro';
           <!-- ensure yellow styles injected -->
           <div style="display:none" class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
           </div>
+          <div style="display:none" class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-300" role="alert">
+          </div>
         </scored-results>
     </a>
 </div>
@@ -31,15 +33,19 @@ import Spinner from '@/components/Spinner.astro';
       const number = this.getAttribute('number') || 'unknown';
       const nearly = this.getAttribute('nearly') || false;
       const explanation = this.getAttribute('explanation') || ''
+      const extra = type === 'hyperactivity' ? ' (aka Classic ADD)' : ''
+      const link = this.getAttribute('link') || null;
 
       const color = nearly ? 'yellow' : 'blue'
 
       this.innerHTML = `
-        <div class="p-4 mb-4 text-sm text-${color}-800 rounded-lg bg-${color}-50 dark:bg-gray-800 dark:text-${color}-400 cursor-default" role="alert">
-          <span class="font-medium">Type ${number} ${humanize(type)}:</span>
-          <br/>
-          ${' ' + explanation}
-        </div>
+        <a href="${link} class="cursor-pointer">
+          <div class="p-4 mb-4 text-sm text-${color}-800 rounded-lg bg-${color}-50 dark:bg-${color}-900" role="alert">
+            <span class="font-medium">Type ${number} ${humanize(type)}${extra}:</span>
+            <br/>
+            ${' ' + explanation}
+          </div>
+        </a>
       `;
     }
   }
@@ -53,7 +59,7 @@ import Spinner from '@/components/Spinner.astro';
 
       this.innerHTML = `
       <div class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer">
-        Download
+        Download my answers
       </div>
       `;
 
@@ -70,15 +76,14 @@ import Spinner from '@/components/Spinner.astro';
 
           const csvContent = [
           'question,no,category,score,scoreText',
-          ...Object.keys(answers).map((no) => {
-            const question = questions[no];
-
+          ...questions.map((question, no) => {
+            const score = answers[no] || 0;
             const row = {
               question: escapeCSVValue(question.text),
               no: Number(no) + 1,
               category: question.category,
-              score: answers[no],
-              scoreText: invertedOptions[answers[no]],
+              score,
+              scoreText: invertedOptions[score],
             }
 
             return Object.values(row).join(',');
@@ -118,6 +123,7 @@ import Spinner from '@/components/Spinner.astro';
         if (result.qualifies || result.nearlyQualified) {
           const alert = document.createElement('add-type-alert');
           alert.setAttribute('type', category);
+          alert.setAttribute('link', result.categoryLink);
           alert.setAttribute('number', result.categoryNumber);
           alert.setAttribute('explanation', result.explanation);
           if (result.nearlyQualified) {

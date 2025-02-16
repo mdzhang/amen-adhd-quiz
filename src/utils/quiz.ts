@@ -4,37 +4,45 @@ import questionData from '@/data/questions.json';
 type QuestionCategory = {
   number: number;
   range: number[];
+  link: string;
 };
 
 const CATEGORIES: Record<string, QuestionCategory> = {
   inattentive: {
     number: 1,
     range: [1, 9],
+    link: 'https://www.amenclinics.com/blog/know-the-add-types-week-2-inattentive-add/',
   },
   hyperactivity: {
     // aka impulsivity
     number: 2,
     range: [10, 18],
+    link: 'https://www.amenclinics.com/blog/get-to-know-the-add-types-week-1-classic-add/',
   },
   overfocused: {
     number: 3,
     range: [19, 31],
+    link: 'https://www.amenclinics.com/blog/overfocused-add',
   },
   temporal: {
     number: 4,
     range: [32, 44],
+    link: 'https://www.amenclinics.com/blog/behavior-problems-or-brain-trauma-week-4-of-7-temporal-lobe-add/',
   },
   limbic: {
     number: 5,
     range: [45, 53],
+    link: 'https://www.amenclinics.com/blog/when-depression-add-intersect-week-5-of-7-limbic-add/',
   },
   ring_of_fire: {
     number: 6,
     range: [54, 63],
+    link: 'https://www.amenclinics.com/blog/a-very-busy-brain-week-6-of-7-ring-of-fire-add/',
   },
   anxious: {
     number: 7,
     range: [64, 70],
+    link: 'https://www.amenclinics.com/blog/the-mother-of-perpetual-worry-week-7-of-7-anxious-add/',
   },
 } as const;
 
@@ -50,6 +58,7 @@ type CategoryResult = {
   category: string;
   categoryNumber: number;
   explanation: string;
+  categoryLink: string;
 };
 type Result = {
   [key in Category]: CategoryResult;
@@ -68,6 +77,14 @@ export const options = {
   Frequently: 3,
   'Very Frequently': 4,
   // 'Not Applicable/Not Known': null,
+};
+
+export const optionDescriptions = {
+  Never: 'Does not occur at all',
+  Rarely: 'Happens once a month or less',
+  Occasionally: 'Happens once a week or less',
+  Frequently: 'Happens multiple times times a week',
+  'Very Frequently': 'Happens daily or almost every day',
 };
 
 function invertObject(obj) {
@@ -92,7 +109,6 @@ function processQuestions(): Question[] {
   );
 }
 
-// ?answers=%2C0%3D0%2C1%3D1%2C2%3D2%2C3%3D3%2C4%3D2
 export const questions: Question[] = processQuestions();
 
 function determineIsCoreType(answers: Answers, category: string): boolean {
@@ -129,9 +145,9 @@ function getExplanation(
 
   const minScore = nearly ? 2 : 3;
   const nearlyMsg = nearly ? 'nearly ' : '';
+  const tot = range[1] - range[0] + 1;
 
   if (category === 'inattentive' || category === 'hyperactivity') {
-    const tot = range[1] - range[0];
     let msg = `You ${nearlyMsg}${verb1} the criteria for this ADD subtype because you ${verb2} ${minScore}+ on at least 4 (${score}/${tot}) of the
     ${cat} questions ${rangeMsg}
     `;
@@ -143,15 +159,11 @@ function getExplanation(
     return msg;
   }
 
-  const iaRange = CATEGORIES.inattentive.range;
-  const iaRangeMsg = `(questions ${iaRange[0]}-${iaRange[1]})`;
-  const tot = iaRange[1] - iaRange[0];
-
   const verb3 = isInattentive ? 'met' : 'did not meet';
   const verb4 = basicallyQualified ? 'scored' : 'did not score';
 
   return `You ${nearlyMsg}met the criteria for this ADD subtype because you ${verb3} the criteria
-    for inattentiveness ${iaRangeMsg} and ${verb4} ${minScore}+ on at least 4 (${score}/${tot}) of the ${cat} questions ${rangeMsg}
+    for inattentiveness and ${verb4} ${minScore}+ on at least 4 (${score}/${tot}) of the ${cat} questions ${rangeMsg}
   `;
 }
 
@@ -202,6 +214,7 @@ export function scoreAnswers(answers: Answers): Result {
       nearlyQualified: qualifies ? false : nearlyQualified,
       category,
       categoryNumber: CATEGORIES[category].number,
+      categoryLink: CATEGORIES[category].link,
       explanation: getExplanation(
         category,
         qualifies,

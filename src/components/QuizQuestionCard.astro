@@ -1,7 +1,7 @@
 ---
 import { AppConfig } from '@/utils/AppConfig';
 import QuizQuestionRating from '@/components/QuizQuestionRating.astro';
-import { options } from '@/utils/quiz';
+import { options, questions } from '@/utils/quiz';
 
 export interface Props {
   index: number;
@@ -10,13 +10,23 @@ export interface Props {
 
 const { question, index } = Astro.props as Props;
 
-const showBack = index > 0;
+const showBack = index >= 0;
+
+const progress = Math.ceil(((index + 1) / questions.length) * 100);
 
 const radioElementName = `question-radio-${index}`;
+
+const buttonCls = "m-auto grow w-full inline-flex items-center rounded-lg bg-blue-700 px-3 py-2 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer"
+const backButtonCls = `text-center grow w-full inline-flex items-center rounded-lg px-3 py-2 text-center text-sm font-medium
+focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-100 cursor-pointer text-blue-900 dark:text-white
+border border-gray-200 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-400 dark:border-gray-600 dark:focus:ring-gray-700`;
 ---
 <div class="max-w-4xl rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+      <div class="bg-blue-600 h-2.5 rounded-full" style={`width: ${progress}%`}></div>
+    </div>
     <a href="#">
-        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+        <h5 class="mb-2 pt-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
           Question #{index + 1}
         </h5>
     </a>
@@ -25,24 +35,26 @@ const radioElementName = `question-radio-${index}`;
       <br />
       Remember to focus on the most recent weeks.
     </p>
-    <p class="mb-3 rounded-lg border border-blue-200 bg-blue-200/25 p-4 text-center font-bold text-gray-700 dark:text-gray-400">
+    <p class="mb-3 rounded-lg border border-blue-200 bg-blue-200/25 p-4 text-center font-bold text-gray-700 dark:text-white max-w-md">
       {question}
     </p>
     <div class="pb-8">
       <QuizQuestionRating elementName={radioElementName}/>
     </div>
+    <div class="flex flex-row justify-between gap-2">
     {showBack && (
-      <back-button data-lastpage={`${AppConfig.base}/quiz/${index}/`}>
-        <div class="inline-flex items-center rounded-lg bg-white px-3 py-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-          Back
+      <back-button data-lastpage={`${AppConfig.base}/quiz/${index}/`} class="grow w-full">
+        <div class={backButtonCls}>
+          <p class="m-auto">Back</p>
         </div>
       </back-button>
     )}
-    <next-question data-nextpage={`${AppConfig.base}/quiz/${index + 2}/`} data-index={index} data-radioelementname={radioElementName} data-options={JSON.stringify(options)}>
-      <div class="inline-flex cursor-pointer items-center rounded-lg bg-blue-700 px-3 py-2 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-        Next
+    <next-question data-nextpage={`${AppConfig.base}/quiz/${index + 2}/`} data-index={index} data-radioelementname={radioElementName} data-options={JSON.stringify(options)} class="grow w-full">
+      <div class={buttonCls}>
+        <p class="m-auto">Next</p>
       </div>
     </next-question>
+    </div>
 </div>
 <script>
   class NextQuestion extends HTMLElement {
