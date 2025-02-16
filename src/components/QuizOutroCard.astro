@@ -15,6 +15,9 @@ import Spinner from '@/components/Spinner.astro';
           </div>
           <div id="results-container">
           </div>
+          <!-- ensure yellow styles injected -->
+          <div style="display:none" class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+          </div>
         </scored-results>
     </a>
 </div>
@@ -26,10 +29,13 @@ import Spinner from '@/components/Spinner.astro';
     connectedCallback() {
       const type = this.getAttribute('type') || 'unknown';
       const number = this.getAttribute('number') || 'unknown';
+      const nearly = this.getAttribute('nearly') || false;
       const explanation = this.getAttribute('explanation') || ''
 
+      const color = nearly ? 'yellow' : 'blue'
+
       this.innerHTML = `
-        <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 cursor-default" role="alert">
+        <div class="p-4 mb-4 text-sm text-${color}-800 rounded-lg bg-${color}-50 dark:bg-gray-800 dark:text-${color}-400 cursor-default" role="alert">
           <span class="font-medium">Type ${number} ${humanize(type)}:</span>
           <br/>
           ${' ' + explanation}
@@ -97,11 +103,9 @@ import Spinner from '@/components/Spinner.astro';
     connectedCallback() {
       const params = new URLSearchParams(window.location.search);
       const answers = params.get('answers') || '';
-      console.log(`Raw answers ${answers}`)
 
       const answerDict = Object.fromEntries(answers.split(',').filter(i => i !== '').map(i => i.split('=')));
       const results = scoreAnswers(answerDict)
-      console.log(`Results ${JSON.stringify(results)}`)
 
       // add alerts for each ADD type qualified for based on answers
       const container = document.getElementById('results-container');
@@ -109,16 +113,20 @@ import Spinner from '@/components/Spinner.astro';
 
       Object.keys(results).forEach(category => {
         const result = results[category]
-        if (result.qualifies) {
+        console.log(`Category ${category} result: ${JSON.stringify(result)}`)
+        if (result.qualifies || result.nearlyQualified) {
           const alert = document.createElement('add-type-alert');
           alert.setAttribute('type', category);
           alert.setAttribute('number', result.categoryNumber);
           alert.setAttribute('explanation', result.explanation);
+          if (result.nearlyQualified) {
+            alert.setAttribute('nearly', true)
+          }
           container.appendChild(alert);
         }
       });
 
-      const qualifyingCount = Object.values(results).filter(r => r.qualifies).length;
+      const qualifyingCount = Object.values(results).filter(r => r.qualifies || r.nearlyQualified).length;
 
       // remove the spinner
       const spinner = document.getElementById('loading-spinner');
@@ -130,7 +138,7 @@ import Spinner from '@/components/Spinner.astro';
       if (qualifyingCount === 0) {
         summary.textContent = "You didn't meet the criteria for any ADD types."
       } else {
-        summary.textContent = `You met the criteria for ${qualifyingCount} ADD type(s).`
+        summary.textContent = `Your answers flagged these ${qualifyingCount} ADD type(s).`
       }
 
       // add a result download button

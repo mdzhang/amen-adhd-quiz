@@ -38,6 +38,7 @@ type CategoryResult = {
   score: number;
   isInattentive: boolean;
   qualifies: boolean;
+  nearlyQualified: boolean;
   category: string;
   categoryNumber: number;
   explanation: string;
@@ -89,30 +90,48 @@ export function humanize(str) {
   return frags.join(' ');
 }
 
-function getExplanation(category, qualifies, isInattentive, score) {
+function getExplanation(
+  category,
+  qualifies,
+  isInattentive,
+  score,
+  nearly = false
+) {
   const range = CATEGORY_QUESTION_RANGES[category];
   const rangeMsg = `(questions ${range[0]}-${range[1]})`;
 
-  const verb1 = qualifies ? 'met' : 'did not meet';
-  const verb2 = qualifies ? 'scored' : 'did not score';
+  const basicallyQualified = qualifies || nearly;
+
+  const verb1 = basicallyQualified ? 'met' : 'did not meet';
+  const verb2 = basicallyQualified ? 'scored' : 'did not score';
 
   const cat = humanize(category).toLowerCase();
 
+  const minScore = nearly ? 2 : 3;
+  const nearlyMsg = nearly ? 'nearly ' : '';
+
   if (category === 'inattentive' || category === 'hyperactivity') {
-    return `You ${verb1} the criteria for this ADD subtype because you ${verb2} 3+ on 4 of the
-    ${cat} questions ${rangeMsg} (your total score was ${score})
+    const tot = range[1] - range[0];
+    let msg = `You ${nearlyMsg}${verb1} the criteria for this ADD subtype because you ${verb2} ${minScore}+ on at least 4 (${score}/${tot}) of the
+    ${cat} questions ${rangeMsg}
     `;
+    if (nearly) {
+      msg = `${msg}. If you had met ${
+        minScore + 1
+      }+ on 4, you would have qualified`;
+    }
+    return msg;
   }
 
   const iaRange = CATEGORY_QUESTION_RANGES.inattentive;
   const iaRangeMsg = `(questions ${iaRange[0]}-${iaRange[1]})`;
+  const tot = iaRange[1] - iaRange[0];
 
   const verb3 = isInattentive ? 'met' : 'did not meet';
-  const verb4 = score >= 4 ? 'scored' : 'did not score';
+  const verb4 = basicallyQualified ? 'scored' : 'did not score';
 
-  return `You met the criteria for this ADD subtype because you ${verb3} the criteria
-    for inattentiveness ${iaRangeMsg} and ${verb4} 3+ on 4 of the ${cat} questions ${rangeMsg}
-    (your total score was ${score})
+  return `You ${nearlyMsg}met the criteria for this ADD subtype because you ${verb3} the criteria
+    for inattentiveness ${iaRangeMsg} and ${verb4} ${minScore}+ on at least 4 (${score}/${tot}) of the ${cat} questions ${rangeMsg}
   `;
 }
 
@@ -142,19 +161,36 @@ export function scoreAnswers(answers: Answers): Result {
       return acc + (answer >= 3 ? 1 : 0);
     }, 0);
 
+    const nearScore = categoryQs.reduce((acc, q) => {
+      const answer = Number(answers[q.index] || 0);
+      return acc + (answer >= 2 ? 1 : 0);
+    }, 0);
+
     const qualifies =
       isImpulsive && category === 'hyperactivity'
         ? true
         : isInattentive && score >= 4;
+
+    const nearlyQualified =
+      isImpulsive && category === 'hyperactivity'
+        ? true
+        : isInattentive && nearScore >= 4;
 
     const result = {
       score,
       isInattentive,
       isImpulsive,
       qualifies,
+      nearlyQualified: qualifies ? false : nearlyQualified,
       category,
       categoryNumber: CATEGORY_NUMS[category],
-      explanation: getExplanation(category, qualifies, isInattentive, score),
+      explanation: getExplanation(
+        category,
+        qualifies,
+        isInattentive,
+        qualifies ? score : nearlyQualified ? nearScore : score,
+        qualifies ? false : nearlyQualified
+      ),
     };
 
     perCategory[category] = result;
