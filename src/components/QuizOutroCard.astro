@@ -25,7 +25,7 @@ import Spinner from '@/components/Spinner.astro';
 </div>
 
 <script>
-  import { invertedOptions, questions, scoreAnswers, humanize} from '@/utils/quiz';
+  import { deserializeAnswers, invertedOptions, questions, scoreAnswers, humanize} from '@/utils/quiz';
 
   class AddTypeAlert extends HTMLElement {
     connectedCallback() {
@@ -110,7 +110,7 @@ import Spinner from '@/components/Spinner.astro';
       const params = new URLSearchParams(window.location.search);
       const answers = params.get('answers') || '';
 
-      const answerDict = Object.fromEntries(answers.split(',').filter(i => i !== '').map(i => i.split('=')));
+      const answerDict = deserializeAnswers(answers)
       const results = scoreAnswers(answerDict)
 
       // add alerts for each ADD type qualified for based on answers

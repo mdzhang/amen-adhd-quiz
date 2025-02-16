@@ -229,3 +229,25 @@ export function scoreAnswers(answers: Answers): Result {
 
   return perCategory;
 }
+
+export function serializeAnswer(
+  existing: string,
+  index: number,
+  ratingNumber: number
+): string {
+  const entry = `${index}${ratingNumber}`;
+  if (existing) {
+    return `${existing}_${entry}`;
+  }
+  return entry;
+}
+
+export function deserializeAnswers(answers: string): Record<number, number> {
+  return answers.split('_').reduce((acc, answer) => {
+    const index = answer.substring(0, answer.length - 1);
+    const rating = answer.substring(answer.length - 1, answer.length);
+
+    acc[index] = Number(rating);
+    return acc;
+  }, {});
+}

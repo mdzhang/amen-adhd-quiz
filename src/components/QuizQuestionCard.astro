@@ -57,6 +57,7 @@ border border-gray-200 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover
     </div>
 </div>
 <script>
+  import { serializeAnswer } from '@/utils/quiz';
   class NextQuestion extends HTMLElement {
     connectedCallback() {
       const index = Number(this.dataset.index) || 0;
@@ -90,7 +91,7 @@ border border-gray-200 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover
 
       const params = new URLSearchParams(window.location.search);
       const answers = params.get('answers') || '';
-      params.set('answers', `${answers},${index}=${ratingNumber}`)
+      params.set('answers', serializeAnswer(answers, index, Number(ratingNumber || 0)))
 
       const url = new URL(window.location.origin + nextPage);
       url.search = params.toString();
