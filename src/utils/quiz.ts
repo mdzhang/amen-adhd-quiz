@@ -62,6 +62,18 @@ export const options = {
   // 'Not Applicable/Not Known': null,
 };
 
+function invertObject(obj) {
+  const inverted = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      inverted[obj[key]] = key;
+    }
+  }
+  return inverted;
+}
+
+export const invertedOptions = invertObject(options);
+
 function processQuestions(): Question[] {
   return questionData.map(
     (q, idx) =>

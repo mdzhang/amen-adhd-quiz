@@ -23,7 +23,7 @@ import Spinner from '@/components/Spinner.astro';
 </div>
 
 <script>
-  import { questions, scoreAnswers, humanize} from '@/utils/quiz';
+  import { invertedOptions, questions, scoreAnswers, humanize} from '@/utils/quiz';
 
   class AddTypeAlert extends HTMLElement {
     connectedCallback() {
@@ -69,7 +69,7 @@ import Spinner from '@/components/Spinner.astro';
           };
 
           const csvContent = [
-          'question,no,category,score',
+          'question,no,category,score,scoreText',
           ...Object.keys(answers).map((no) => {
             const question = questions[no];
 
@@ -78,6 +78,7 @@ import Spinner from '@/components/Spinner.astro';
               no: Number(no) + 1,
               category: question.category,
               score: answers[no],
+              scoreText: invertedOptions[answers[no]],
             }
 
             return Object.values(row).join(',');
