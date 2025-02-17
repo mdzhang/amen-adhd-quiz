@@ -39,7 +39,7 @@ import Spinner from '@/components/Spinner.astro';
       const color = nearly ? 'yellow' : 'blue'
 
       this.innerHTML = `
-        <a href="${link} class="cursor-pointer">
+        <a href="${link}" class="cursor-pointer">
           <div class="p-4 mb-4 text-sm text-${color}-800 rounded-lg bg-${color}-50 dark:bg-${color}-900" role="alert">
             <span class="font-medium">Type ${number} ${humanize(type)}${extra}:</span>
             <br/>
