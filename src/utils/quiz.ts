@@ -5,6 +5,7 @@ type QuestionCategory = {
   number: number;
   range: number[];
   link: string;
+  comorbidity?: string;
 };
 
 const CATEGORIES: Record<string, QuestionCategory> = {
@@ -14,7 +15,7 @@ const CATEGORIES: Record<string, QuestionCategory> = {
     link: 'https://www.amenclinics.com/blog/know-the-add-types-week-2-inattentive-add/',
   },
   hyperactivity: {
-    // aka impulsivity
+    // aka impulsivity or classic ADHD
     number: 2,
     range: [10, 18],
     link: 'https://www.amenclinics.com/blog/get-to-know-the-add-types-week-1-classic-add/',
@@ -23,6 +24,7 @@ const CATEGORIES: Record<string, QuestionCategory> = {
     number: 3,
     range: [19, 31],
     link: 'https://www.amenclinics.com/blog/overfocused-add',
+    comorbidity: 'obsessive compulsive disorder',
   },
   temporal: {
     number: 4,
@@ -33,16 +35,19 @@ const CATEGORIES: Record<string, QuestionCategory> = {
     number: 5,
     range: [45, 53],
     link: 'https://www.amenclinics.com/blog/when-depression-add-intersect-week-5-of-7-limbic-add/',
+    comorbidity: 'depressive disorder',
   },
   ring_of_fire: {
     number: 6,
     range: [54, 63],
     link: 'https://www.amenclinics.com/blog/a-very-busy-brain-week-6-of-7-ring-of-fire-add/',
+    comorbidity: 'bipolar disorder',
   },
   anxious: {
     number: 7,
     range: [64, 70],
     link: 'https://www.amenclinics.com/blog/the-mother-of-perpetual-worry-week-7-of-7-anxious-add/',
+    comorbidity: 'generalized anxiety disorder',
   },
 } as const;
 
@@ -59,6 +64,7 @@ type CategoryResult = {
   categoryNumber: number;
   explanation: string;
   categoryLink: string;
+  comorbidity?: string;
 };
 type Result = {
   [key in Category]: CategoryResult;
@@ -215,6 +221,8 @@ export function scoreAnswers(answers: Answers): Result {
       category,
       categoryNumber: CATEGORIES[category].number,
       categoryLink: CATEGORIES[category].link,
+      comorbidity:
+        qualifies || nearlyQualified ? CATEGORIES[category].comorbidity : null,
       explanation: getExplanation(
         category,
         qualifies,

@@ -35,15 +35,22 @@ import Spinner from '@/components/Spinner.astro';
       const explanation = this.getAttribute('explanation') || ''
       const extra = type === 'hyperactivity' ? ' (aka Classic ADD)' : ''
       const link = this.getAttribute('link') || null;
+      const comorbidity = this.getAttribute('comorbidity') || null;
+      let comorbidityMsg = '';
+
+      if (comorbidity) {
+        comorbidityMsg = `. These questions describe symptoms that are also associated with <b>${comorbidity}</b>.`;
+      }
 
       const color = nearly ? 'yellow' : 'blue'
+
 
       this.innerHTML = `
         <a href="${link}" class="cursor-pointer">
           <div class="p-4 mb-4 text-sm text-${color}-800 rounded-lg bg-${color}-50 dark:bg-${color}-900" role="alert">
-            <span class="font-medium">Type ${number} ${humanize(type)}${extra}:</span>
+            <b>Type ${number} ${humanize(type)}${extra}:</b>
             <br/>
-            ${' ' + explanation}
+            ${' ' + explanation}${comorbidityMsg}
           </div>
         </a>
       `;
@@ -126,6 +133,9 @@ import Spinner from '@/components/Spinner.astro';
           alert.setAttribute('link', result.categoryLink);
           alert.setAttribute('number', result.categoryNumber);
           alert.setAttribute('explanation', result.explanation);
+          if (result.comorbidity) {
+            alert.setAttribute('comorbidity', result.comorbidity);
+          }
           if (result.nearlyQualified) {
             alert.setAttribute('nearly', true)
           }
