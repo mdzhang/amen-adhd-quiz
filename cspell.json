@@ -1,0 +1,30 @@
+{
+  "dictionaries": [
+    "css",
+    "html"
+  ],
+  "words": [
+    "meesh",
+    "mdzhang",
+    "jridgewell",
+    "adhd",
+    "overfocused"
+  ],
+  "languageSettings": [
+    {
+      "language": "en",
+      "locale": "en_US",
+      "languageId": "*"
+    }
+  ],
+  "overrides": [
+    {
+      "filename": "**/*.astro",
+      "languageId": "js,css,html"
+    }
+  ],
+  "ignorePaths": [
+    "**/node_modules/",
+    "**/dist/"
+  ]
+}

@@ -43,13 +43,13 @@ border border-gray-200 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover
     </div>
     <div class="flex flex-row justify-between gap-2">
     {showBack && (
-      <back-button data-lastpage={`${AppConfig.base}/quiz/${index}/`} class="grow w-full">
+      <back-button data-last-page={`${AppConfig.base}/quiz/${index}/`} class="grow w-full">
         <div class={backButtonCls}>
           <p class="m-auto">Back</p>
         </div>
       </back-button>
     )}
-    <next-question data-nextpage={`${AppConfig.base}/quiz/${index + 2}/`} data-index={index} data-radioelementname={radioElementName} data-options={JSON.stringify(options)} class="grow w-full">
+    <next-question data-next-page={`${AppConfig.base}/quiz/${index + 2}/`} data-index={index} data-radio-element-name={radioElementName} data-options={JSON.stringify(options)} class="grow w-full">
       <div class={buttonCls}>
         <p class="m-auto">Next</p>
       </div>
@@ -61,8 +61,8 @@ border border-gray-200 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover
   class NextQuestion extends HTMLElement {
     connectedCallback() {
       const index = Number(this.dataset.index) || 0;
-      const radioElementName = this.dataset.radioelementname || 'unknown';
-      const nextPage = this.dataset.nextpage || window.location.href;
+      const radioElementName = this.dataset.radioElementName || 'unknown';
+      const nextPage = this.dataset.nextPage || window.location.href;
       const options = JSON.parse(this.dataset.options || '{}');
 
       console.log(`Connected el to index ${index} and ${radioElementName} and ${nextPage}`)
@@ -102,7 +102,7 @@ border border-gray-200 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover
 
   class BackButton extends HTMLElement {
     connectedCallback() {
-      const lastPage = this.dataset.lastpage || window.location.href;
+      const lastPage = this.dataset.lastPage || window.location.href;
 
       const el = this.querySelector('div');
       if (el) {
